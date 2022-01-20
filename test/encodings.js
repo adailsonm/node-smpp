@@ -82,22 +82,36 @@ describe('encodings', function() {
 		});
 	});
 
-	describe('UCS2', function() {
-		var UCS2 = encodings.UCS2;
+	describe('UTF16BE', function() {
+		var UTF16BE = encodings.UTF16BE;
 		var samples = {
 			' 1a': [0x00, 0x20, 0x00, 0x31, 0x00, 0x61],
 			'۱۲۳': [0x06, 0xF1, 0x06, 0xF2, 0x06, 0xF3]
 		};
 
-		describe('#match()', function() {
-			it('should always return true', function() {
-				assert(UCS2.match(''));
-				assert(UCS2.match('`ÁáçÚUÓO'));
-				assert(UCS2.match('تست'));
-				assert(UCS2.match('۱۲۳۴۵۶۷۸۹۰'));
-				assert(UCS2.match('ʹʺʻʼʽ`'));
+		describe('#encode', function() {
+			it('should properly encode the given string using UTF16BE charset', function() {
+				for(var str in samples) {
+					assert.deepEqual(UTF16BE.encode(str), Buffer.from(samples[str]));
+				}
 			});
 		});
+
+		describe('#decode', function() {
+			it('should properly decode the given buffer using UTF16BE charset', function() {
+				for(var str in samples) {
+					assert.deepEqual(UTF16BE.decode(samples[str]), str);
+				}
+			});
+		});
+	});
+
+	describe('UCS2', function() {
+		var UCS2 = encodings.UCS2;
+		var samples = {
+			'!': [0x10]
+		};
+
 
 		describe('#encode', function() {
 			it('should properly encode the given string using UCS2 charset', function() {
@@ -252,9 +266,10 @@ describe('encodings', function() {
 			assert.equal(encodings.detect('ÄÖÑÜ§¿abcdefghijklmnopqrstuvwxyzäöñüà(){}[]'), 'ASCII');
 			assert.equal(encodings.detect('`ÁáçÚUÓO'), 'LATIN1');
 			assert.equal(encodings.detect('«©®µ¶±»'), 'LATIN1');
-			assert.equal(encodings.detect('ʹʺʻʼʽ`'), 'UCS2');
-			assert.equal(encodings.detect('تست'), 'UCS2');
-			assert.equal(encodings.detect('۱۲۳۴۵۶۷۸۹۰'), 'UCS2');
+			assert.equal(encodings.detect('ʹʺʻʼʽ`'), 'UTF16BE');
+			assert.equal(encodings.detect('تست'), 'UTF16BE');
+			assert.equal(encodings.detect('۱۲۳۴۵۶۷۸۹۰'), 'UTF16BE');
+			assert.equal(encodings.detect('😄'), 'UTF16BE');
 		});
 	});
 });
